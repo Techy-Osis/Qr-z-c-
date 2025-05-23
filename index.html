@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Şifre Çözücü</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    #reader {
+      width: 300px;
+      margin: auto;
+    }
+    #result {
+      margin-top: 2rem;
+      font-size: 1.5rem;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>QR Şifre Çözücü</h1>
+  <div id="reader"></div>
+  <div id="result"></div>
+
+  <script>
+    const matchTable = {
+      "b7a6": "6E",
+      "06f3": "]=",
+      "9b39": "dV",
+      "9c2a": "*e"
+    };
+
+    function guessPrefix(bytes) {
+      const hex = bytes.slice(0, 2).map(b => b.toString(16).padStart(2, '0')).join('');
+      return matchTable[hex] || `[${hex.toUpperCase()}?]`;
+    }
+
+    function decodeBase64(base64) {
+      const binary = atob(base64);
+      const bytes = Array.from(binary).map(ch => ch.charCodeAt(0));
+      return bytes;
+    }
+
+    function onScanSuccess(decodedText) {
+      try {
+        const bytes = decodeBase64(decodedText);
+        const prefix = guessPrefix(bytes);
+        const password = prefix + "12674";
+        document.getElementById("result").innerText = `Şifre: ${password}`;
+      } catch (err) {
+        document.getElementById("result").innerText = "Geçersiz veri.";
+      }
+    }
+
+    const html5QrcodeScanner = new Html5QrcodeScanner(
+      "reader", { fps: 10, qrbox: 250 }, false
+    );
+    html5QrcodeScanner.render(onScanSuccess);
+  </script>
+</body>
+</html>

@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="tr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,14 +19,19 @@
       font-size: 1.5rem;
       color: green;
     }
+    textarea {
+      width: 90%;
+      height: 200px;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
   <h1>QR Şifre Çözücü</h1>
   <div id="reader"></div>
   <div id="result"></div>
-
-  <script>
+  <button onclick="bruteForce()">Brute Force Tahminleri</button>
+  <textarea id="bruteList" placeholder="Tahmin listesi burada görünecek..."></textarea>  <script>
     const matchTable = {
       "b7a6": "6E",
       "06f3": "]=",
@@ -57,10 +61,20 @@
       }
     }
 
+    function bruteForce() {
+      const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:',.<>?/";
+      let results = "";
+      for (let i = 0; i < chars.length; i++) {
+        for (let j = 0; j < chars.length; j++) {
+          results += chars[i] + chars[j] + "12674\n";
+        }
+      }
+      document.getElementById("bruteList").value = results;
+    }
+
     const html5QrcodeScanner = new Html5QrcodeScanner(
       "reader", { fps: 10, qrbox: 250 }, false
     );
     html5QrcodeScanner.render(onScanSuccess);
-  </script>
-</body>
+  </script></body>
 </html>

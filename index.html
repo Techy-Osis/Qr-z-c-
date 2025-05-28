@@ -31,17 +31,26 @@
   <div id="reader"></div>
   <div id="result"></div>
   <button onclick="bruteForce()">Brute Force Tahminleri</button>
+  <button onclick="smartGuess()">Akıllı Tahmin Önerisi</button>
   <textarea id="bruteList" placeholder="Tahmin listesi burada görünecek..."></textarea>  <script>
     const matchTable = {
       "b7a6": "6E",
       "06f3": "]=",
       "9b39": "dV",
-      "9c2a": "*e"
+      "9c2a": "*e",
+      "c2b7": "Zi"
     };
+
+    let lastUnknownPrefix = null;
 
     function guessPrefix(bytes) {
       const hex = bytes.slice(0, 2).map(b => b.toString(16).padStart(2, '0')).join('');
-      return matchTable[hex] || `[${hex.toUpperCase()}?]`;
+      if (matchTable[hex]) {
+        return matchTable[hex];
+      } else {
+        lastUnknownPrefix = hex;
+        return `[${hex.toUpperCase()}?]`;
+      }
     }
 
     function decodeBase64(base64) {
@@ -62,7 +71,7 @@
     }
 
     function bruteForce() {
-      const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:',.<>?/";
+      const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
       let results = "";
       for (let i = 0; i < chars.length; i++) {
         for (let j = 0; j < chars.length; j++) {
@@ -70,6 +79,29 @@
         }
       }
       document.getElementById("bruteList").value = results;
+    }
+
+    function smartGuess() {
+      if (!lastUnknownPrefix) {
+        document.getElementById("bruteList").value = "Önce tanımsız bir kod okutmalısın.";
+        return;
+      }
+
+      // Basit benzerlik bazlı akıllı tahmin önerisi (ilk byte'a göre yakınlar)
+      let suggestions = [];
+      const target = parseInt(lastUnknownPrefix.slice(0, 2), 16);
+      for (let key in matchTable) {
+        const value = parseInt(key.slice(0, 2), 16);
+        const diff = Math.abs(target - value);
+        suggestions.push({ prefix: matchTable[key], score: diff });
+      }
+      suggestions.sort((a, b) => a.score - b.score);
+
+      let out = "En yakın tahmini Şifre başları:\n";
+      for (let i = 0; i < Math.min(5, suggestions.length); i++) {
+        out += suggestions[i].prefix + "12674\n";
+      }
+      document.getElementById("bruteList").value = out;
     }
 
     const html5QrcodeScanner = new Html5QrcodeScanner(
